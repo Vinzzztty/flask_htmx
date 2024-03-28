@@ -1,7 +1,6 @@
-{% for entry in entries %} 
-    {{ render_partial('partials/entry.html',
-        title=entry.title, published=entry.published, summary=entry.summary,
-        media_content=entry.media_content, author=entry.author, link=entry.link) }} 
+{% for item in entries %}
+  {{ render_partial("partials/entry.html", title=item.title, published=item.published, summary=item.summary,
+    media_content=item.media_content, author=item.author, link=item.link, read=item.read, feed_url=href) }}
 {% endfor %}
 
 <!-- Load More -->

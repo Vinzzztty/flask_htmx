@@ -24,6 +24,7 @@
 
     <main class="py-10">
         <div class="px-4 sm:px-6 lg:px-8"
+            id="entries"
             hx-get="{{ url_for('render_feed_entries', feed_url=feed.href, page=0) }}"
             hx-target="this"
             hx-swap="afterbegin"
@@ -33,3 +34,5 @@
 </div>
 
 {% endblock content %}
+
+
