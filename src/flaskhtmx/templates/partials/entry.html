@@ -12,6 +12,7 @@
         class="ml-8 pt-4 {{ 'col-start-2' if media_content else 'col-start-1 col-span-2' }}"
         x-data="{ read: {{ read | lower }} }"
     >
+        <!-- x-data get the read value and set to lower, beacuse use alpineJs -->
         <h2 class="font-bold text-2xl">
             <svg
                 x-show="!read"
@@ -29,11 +30,14 @@
         </p>
         <p class="leading-6 mb-2">{{ summary | safe }}</p>
         <a
-            x-on:click="read = true"
+            x-on:click="$dispatch('read', { read: read }); read = true;"
             href="{{ url_for('read_entry', feed_url=feed_url, entry_url=link) }}"
             class="underline"
             target="_blank"
             >Read article</a
         >
+            <!-- In summary, when the element is clicked, Alpine.js dispatches a custom event named 'read' and 
+                sets the read variable to true, indicating that the action associated with reading has been completed. -->
+            <!-- The href to get real url redirect page -->
     </div>
 </article>

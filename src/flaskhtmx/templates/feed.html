@@ -10,8 +10,16 @@
                     <a
                         href="{{ url_for('render_feed', feed_url=feed_.href)}}"
                         class="{{ 'bg-green-700 text-white' if feed.href == feed_['href'] else '' }} rounded-md p-2 text-sm leading-6 font-semibold"
-                        hx-boost="true" 
-                    > {{ feed_['title'] }}</a>
+                        hx-boost="true"
+                        x-data
+                    >
+                        {{ feed_['title'] }}
+                        <span
+                            @read.window="{{ '$el.innerHTML -= $event.detail.read ? 0 : 1' if feed.href == feed_['href'] else '' }}"
+                            >{{ feed_["entries"].values() | rejectattr("read") |
+                            list | length }}</span
+                        >
+                    </a>
                 </li>
                 {% endfor %}
             </ul>
@@ -21,18 +29,16 @@
 
 <!-- Content -->
 <div class="pl-72">
-
     <main class="py-10">
-        <div class="px-4 sm:px-6 lg:px-8"
+        <div
+            class="px-4 sm:px-6 lg:px-8"
             id="entries"
             hx-get="{{ url_for('render_feed_entries', feed_url=feed.href, page=0) }}"
             hx-target="this"
             hx-swap="afterbegin"
-            hx-trigger="load">
-        </div>
+            hx-trigger="load"
+        ></div>
     </main>
 </div>
 
 {% endblock content %}
-
-
