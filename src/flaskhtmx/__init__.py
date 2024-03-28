@@ -38,6 +38,7 @@ def create_app():
         # The feed_url parameter is specified with a type hint of str and set to None as a default value.
         # This means that the function can be called with or without a feed_url parameter.
         # If no parameter is provided, feed_url will be None.
+
         for url, feed_ in feeds.items():
             parsed_feed = feedparser.parse(url)
 
@@ -45,17 +46,16 @@ def create_app():
                 if entry.link not in feed_["entries"]:
                     feed_["entries"][entry.link] = entry
 
-            if feed_url is None:
-                # Default url
-                feed = list(feeds.values())[0]
-                print(feed)
+        if feed_url is None:
+            # Default url
+            feed = list(feeds.values())[0]
 
-            else:
-                feed = feeds[feed_url]
+        else:
+            feed = feeds[feed_url]
 
-            return render_template(
-                "feed.html", feed=feed, entries=feed["entries"].values(), feeds=feeds
-            )
+        return render_template(
+            "feed.html", feed=feed, entries=feed["entries"].values(), feeds=feeds
+        )
 
     return app
 
