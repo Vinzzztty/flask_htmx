@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, abort
 import jinja_partials
 import feedparser
 
@@ -55,6 +55,23 @@ def create_app():
 
         return render_template(
             "feed.html", feed=feed, entries=feed["entries"].values(), feeds=feeds
+        )
+
+    @app.route("/entries/<path:feed_url>")
+    def render_feed_entries(feed_url: str):
+        try:
+            feed = feeds[feed_url]
+        except KeyError:
+            abort(400)
+
+        page = int(request.args.get("page", 0))  # /entries/<path:feed_url>?page=3
+
+        return render_template(
+            "partials/entry_page.html",
+            entries=list(feed["entries"].values())[page * 5 : page * 5 + 5],
+            href=feed_url,
+            page=page,
+            max_page=len(feed["entries"]) // 5,
         )
 
     return app

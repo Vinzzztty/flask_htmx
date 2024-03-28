@@ -23,7 +23,12 @@
 <div class="pl-72">
 
     <main class="py-10">
-        {{ render_partial("partials/entry_page.html", entries=entries) }}
+        <div class="px-4 sm:px-6 lg:px-8"
+            hx-get="{{ url_for('render_feed_entries', feed_url=feed.href, page=0) }}"
+            hx-target="this"
+            hx-swap="afterbegin"
+            hx-trigger="load">
+        </div>
     </main>
 </div>
 
