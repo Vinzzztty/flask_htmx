@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, abort, redirect
+from flask import Flask, render_template, jsonify, request, abort, redirect, url_for
 import jinja_partials
 import feedparser
 
@@ -44,7 +44,10 @@ def create_app():
 
             for entry in parsed_feed.entries:
                 if entry.link not in feed_["entries"]:
-                    feed_["entries"][entry.link] = {**entry, "read": False} # Args to declare read, and set value to False
+                    feed_["entries"][entry.link] = {
+                        **entry,
+                        "read": False,
+                    }  # Args to declare read, and set value to False
 
         if feed_url is None:
             # Default url
@@ -78,6 +81,19 @@ def create_app():
         entry = feed["entries"][entry_url]
         entry["read"] = True
         return redirect(entry_url)
+
+    @app.route("/add_feed", methods=["POST"])
+    def add_feed():
+        feed = request.form.get("url")
+        title = request.form.get("title")
+        show_images = request.form.get("showImages") == "on"
+        feeds[feed] = {
+            "title": title,
+            "href": feed,
+            "show_images": show_images,
+            "entries": {},
+        }
+        return redirect(url_for("render_feed", feed_url=feed))
 
     return app
 
