@@ -1,56 +1,103 @@
-{% extends "base.html" %} {% block content %}
+<!-- Import icons jinja-->
+{% from "icons.jinja2" import hamburger, close_x %} {% extends "base.html" %}
+
 <!-- Sidebar -->
-<div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-    <div class="flex grow flex-col overflow-y-auto bg-white px-6 py-4">
-        <nav class="flex flex-1 flex-col">
-            <ul role="list" class="flex flex-1 flex-col gap-y-3">
-                {% for feed_url, feed_ in feeds.items() %}
-                <li>
-                    <!-- hx-boost make not reload when user click another page -->
-                    <a
-                        href="{{ url_for('render_feed', feed_url=feed_.href)}}"
-                        class="{{ 'bg-green-700 text-white' if feed.href == feed_['href'] else '' }} flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                        hx-boost="true"
-                        x-data
+{% macro sidebar() %}
+<div class="flex grow flex-col overflow-y-auto bg-white px-6 py-4">
+    <nav class="flex flex-1 flex-col">
+        <ul role="list" class="flex flex-1 flex-col gap-y-3">
+            {% for feed_url, feed_ in feeds.items() %}
+            <li>
+                <!-- hx-boost make not reload when user click another page -->
+                <a
+                    href="{{ url_for('render_feed', feed_url=feed_.href)}}"
+                    class="{{ 'bg-green-700 text-white' if feed.href == feed_['href'] else '' }} flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                    hx-boost="true"
+                    x-data
+                >
+                    {{ feed_['title'] }}
+                    <span
+                        @read.window="{{ '$el.innerHTML -= $event.detail.read ? 0 : 1' if feed.href == feed_['href'] else '' }}"
+                        >{{ feed_["entries"].values() | rejectattr("read") |
+                        list | length }}</span
                     >
-                        {{ feed_['title'] }}
-                        <span
-                            @read.window="{{ '$el.innerHTML -= $event.detail.read ? 0 : 1' if feed.href == feed_['href'] else '' }}"
-                            >{{ feed_["entries"].values() | rejectattr("read") |
-                            list | length }}</span
-                        >
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        </nav>
-        <div class="flex flex-col justify-center items-center" x-data="{show: false}">
-            <div x-show="show">
-                {{ render_partial("partials/add_feed.html") }}
-            </div>
-            <button
-                x-on:click="show = !show"
-                class="bg-slate-600 text-white font-semibold rounded-md px-4 py-2"
-                x-text="show ? 'Hide' : 'Show' "
-            >
-                Show
-            </button>
-        </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    <div
+        class="flex flex-col justify-center items-center"
+        x-data="{show: false}"
+    >
+        <div x-show="show">{{ render_partial("partials/add_feed.html") }}</div>
+        <button
+            x-on:click="show = !show"
+            class="bg-slate-600 text-white font-semibold rounded-md px-4 py-2"
+            x-text="show ? 'Hide' : 'Show' "
+        >
+            Show
+        </button>
     </div>
 </div>
 
-<!-- Content -->
-<div class="pl-72">
-    <main class="py-10">
+{% endmacro %} {% block content %}
+<div x-data="{open: false}">
+    {# Cek mobile view #}
+    <div
+        class="relative z-50 lg:hidden"
+        role="dialog"
+        aria-modal="true"
+        x-show="open"
+    >
+        <div class="fixed inset-0 bg-gray-900/80"></div>
+        <div class="fixed inset-0 flex">
+            <div class="relative mr-16 flex w-full max-w-xs flex-1">
+                {# Close button #}
+                <div
+                    class="absolute left-full top-0 flex w-16 justify-center pt-5"
+                >
+                    <button
+                        type="button"
+                        class="-m-2.5 p-2.5"
+                        x-on:click="open = false"
+                    > {{ close_x("h-6 w-6 text-white") }}</button>
+                </div>
+                {{ sidebar() }}
+            </div>
+        </div>
+    </div>
+    <div
+        class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
+    >
+        {{ sidebar() }}
+    </div>
+
+    <div class="lg:pl-72">
         <div
-            class="px-4 sm:px-6 lg:px-8"
-            id="entries"
-            hx-get="{{ url_for('render_feed_entries', feed_url=feed.href, page=0) }}"
-            hx-target="this"
-            hx-swap="afterbegin"
-            hx-trigger="load"
-        ></div>
-    </main>
+            class="sticky lg:hidden top-0 z-40 flex h-16 shrink-0 items-center border-b border-gray-200 bg-white px-4 shadow-sm"
+        >
+            <button
+                type="button"
+                class="-m-2.5 p-2.5 text-gray-700"
+                x-on:click="open = true"
+            >
+                <span class="sr-only">Open Sidebar</span>
+                {{ hamburger("h-6 w-6")}}
+            </button>
+        </div>
+        <!-- Content -->
+        <main class="py-10">
+            <div
+                class="px-4 sm:px-6 lg:px-8"
+                id="entries"
+                hx-get="{{ url_for('render_feed_entries', feed_url=feed.href, page=0) }}"
+                hx-target="this"
+                hx-swap="afterbegin"
+                hx-trigger="load"
+            ></div>
+        </main>
+    </div>
 </div>
 
 {% endblock content %}
