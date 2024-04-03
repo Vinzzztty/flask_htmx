@@ -1,3 +1,3 @@
-# flaskhtmx
+# RSS Website use Flask, HTMX, TailwindCSS, and AlpineJs
 
-Describe your project here.
+It's Rapid Development
